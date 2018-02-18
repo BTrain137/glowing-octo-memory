@@ -1,8 +1,23 @@
 body {
   padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  background-image: url(../images/background.jpg);
+  background-repeat: no-repeat;
+  background-size: auto;
 }
 
 a {
   color: #00B7FF;
+}
+
+.signup {
+  background-color: black
+}
+
+.signup label {
+  color: white;
+}
+
+.signup h1 {
+  color: white;
 }
