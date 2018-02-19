@@ -1,23 +1,17 @@
-var express = require('express');
-var router = express.Router();
-var flash = require("connect-flash");
+const express = require('express');
+const router = express.Router();
+const flash = require("connect-flash");
 router.use(flash());
 
-/* GET home page. */
-// router.get('/', function(req, res, next) {
-//   res.render('index', { title: 'Express' });
-// });
-// module.exports = router;
+// As with any middleware it is quintessential to call next()
+// if the user is authenticated
+const isAuthenticated = function (req, res, next) {
+  if (req.isAuthenticated())
+    return next();
+  res.redirect('/');
+}
 
 module.exports = function(passport){
-
-    // As with any middleware it is quintessential to call next()
-    // if the user is authenticated
-    var isAuthenticated = function (req, res, next) {
-      if (req.isAuthenticated())
-        return next();
-      res.redirect('/');
-    }
  
   /* GET login page. */
   router.get('/', function(req, res) {
