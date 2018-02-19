@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var LocalStrategy = require('passport-local')
 var flash = require("connect-flash");
+var bCrypt = require('bcrypt-nodejs')
 
 var app = express();
 
@@ -25,7 +26,7 @@ var createHash = function(password){
 
 var passport = require('passport');
 var expressSession = require('express-session');
-var index = require('./routes/index')(passport)
+// var index = require('./routes/index')(passport)
 const User = require('./models/user')
 
 app.use(expressSession({secret: 'mySecretKey'}));
@@ -76,6 +77,7 @@ passport.use('signup', new LocalStrategy({
   passReqToCallback : true
 },
 function(req, username, password, done) {
+  console.log("sign up in app.js")
   findOrCreateUser = function(){
     // find a user in Mongo with provided username
     User.findOne({'username':username},function(err, user) {
@@ -96,9 +98,12 @@ function(req, username, password, done) {
         // set the user's local credentials
         newUser.username = username;
         newUser.password = createHash(password);
-        newUser.email = req.param('email');
-        newUser.firstName = req.param('firstName');
-        newUser.lastName = req.param('lastName');
+        // newUser.email = req.param('email');
+        newUser.name = req.param('name');
+        // newUser.lastName = req.param('lastName');
+        newUser.company = req.param('company');
+
+        console.log('Hey!! under new user')
 
         // save the user
         newUser.save(function(err) {
@@ -150,6 +155,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+var index = require('./routes/index')(passport)
 app.use('/', index);
 
 // catch 404 and forward to error handler
