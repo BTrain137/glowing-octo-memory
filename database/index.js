@@ -1,7 +1,6 @@
 const mongoose = require('mongoose')
 
 //NoSQL mongo database
-let MONGO_URL
 const MONGO_LOCAL_URL = 'mongodb://localhost/passport'
 
 if (process.env.MONGODB_URI) {
