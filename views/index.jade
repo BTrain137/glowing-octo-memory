@@ -10,8 +10,8 @@ block content
             form(class='form-signin', action='/login', method='POST')
               input(type='text', name='username' class='form-control', placeholder='Email',required, autofocus)
               input(type='password', name='password' class='form-control', placeholder='Password', required)
-              button(class='btn btn-lg btn-primary btn-block', type='submit') Sign in
-          a(href='/signup', class='text-center new-account btn btn-lg btn-primary btn-block') Create an account
+              button(class='btn btn-lg btn-block', type='submit') Sign in
+          a(href='/signup', class='text-center new-account btn btn-lg btn-block') Create an account
           span.clearfix    
           #message
           if message
