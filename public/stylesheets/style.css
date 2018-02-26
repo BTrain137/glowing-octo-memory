@@ -6,12 +6,9 @@ body {
   background-size: auto;
 }
 
-a {
-  color: #00B7FF;
-}
 
 .signup {
-  background-color: black
+  background-color: rgb(105, 102, 102)
 }
 
 .signup label {
