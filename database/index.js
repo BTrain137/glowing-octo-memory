@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+// const mongoose = require('mongoose')
 
 //NoSQL mongo database
 const MONGO_LOCAL_URL = 'mongodb://localhost/passport'
