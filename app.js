@@ -38,7 +38,7 @@ app.use(passport.session());
 const passportService = require('./service/passport.js')
 
 // Check login states 
-const index = require('./routes/passport')(passport)
+const index = require('./routes/passport');
 app.use('/', index);
 
 // catch 404 and forward to error handler
