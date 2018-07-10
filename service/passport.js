@@ -1,6 +1,5 @@
 const passport = require('passport')
 const LocalStrategy = require('passport-local')
-const flash = require("connect-flash")
 const bCrypt = require('bcrypt-nodejs')
 const User = require('../models/user')
 
@@ -26,7 +25,7 @@ passport.serializeUser(function(user, done) {
 passport.use('login', new LocalStrategy({
     passReqToCallback : true
   },
-  function(req, username, password, done) { 
+  function(req, username, password, done) {
     // check in mongo if a user with username exists or not
     User.findOne({ 'username' :  username }, 
       function(err, user) {
@@ -77,10 +76,8 @@ passport.use('login', new LocalStrategy({
           // set the user's local credentials
           newUser.username = username;
           newUser.password = createHash(password);
-          // newUser.email = req.param('email');
-          newUser.name = req.param('name');
-          // newUser.lastName = req.param('lastName');
-          newUser.company = req.param('company');
+          newUser.name = req.body.name;
+          newUser.company = req.body.company;
   
           // save the user
           newUser.save(function(err) {

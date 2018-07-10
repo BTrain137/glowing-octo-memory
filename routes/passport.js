@@ -1,7 +1,7 @@
-const express = require("express");
-const router = express.Router();
+const router = require("express").Router();
 const flash = require("connect-flash");
 const passport = require("passport");
+const path = require("path");
 router.use(flash());
 
 // As with any middleware it is quintessential to call next()
@@ -13,8 +13,8 @@ const isAuthenticated = function(req, res, next) {
 
 /* GET login page. */
 router.get("/", function(req, res) {
-  // Display the Login page with any flash message, if any
-  res.render("index", { message: req.flash("message") });
+  // res.render("index", { message: req.flash("message") });
+  res.sendFile(path.join(__dirname, "./public/index.html"));
 });
 
 /* Handle Login POST */
@@ -49,7 +49,19 @@ router.get("/signout", function(req, res) {
 
 /* GET Home Page */
 router.get("/home", isAuthenticated, function(req, res) {
+  console.log(req.user);
   res.render("home", { user: req.user });
+});
+
+router.get("/ice-cream", isAuthenticated, (req, res, next) => {
+    const car = {
+        make: "honda",
+        model: "civic",
+        year: "2015",
+        miles: 130000,
+        isDrivable: true,
+    }
+    res.json(car);
 });
 
 module.exports = router;
