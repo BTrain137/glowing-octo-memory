@@ -49,6 +49,7 @@ router.get("/signout", function(req, res) {
 
 /* GET Home Page */
 router.get("/home", isAuthenticated, function(req, res) {
+  
   res.render("home", { user: req.user });
 });
 
