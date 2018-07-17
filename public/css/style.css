@@ -1,34 +1,4 @@
-html, body {
-  height: 100%;  
-}
-
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-  /* background-image: url(../images/background.jpg); */
-  background-repeat: no-repeat;
-  /* background-size: auto; */
-  background: #d9a7c7;  /* fallback for old browsers */
-  background: -webkit-linear-gradient(to bottom, #fffcdc, #d9a7c7);  /* Chrome 10-25, Safari 5.1-6 */
-  background: linear-gradient(to bottom, #fffcdc, #d9a7c7); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-}
+  margin: 0; }
 
-button {
-  background-color: gray
-}
-
-.signup {
-  background-color: rgb(105, 102, 102)
-}
-
-.signup label {
-  color: white;
-}
-
-.signup h1 {
-  color: white;
-}
-
-.whiteBox {
-  background-color: wheat
-}
+/*# sourceMappingURL=style.css.map*/
