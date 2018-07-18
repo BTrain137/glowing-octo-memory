@@ -1,13 +1,17 @@
 var express = require('express');
 var router = express.Router();
 const db = require("./../db.js");
+const passport = require("passport");
 
 var bcrypt = require('bcrypt');
 const saltRounds = 10;
 
-router.get("/", function(req, res){
+router.get("/", function (req, res) {
+  console.log(req.user);
+  console.log(req.isAuthenticated());
   res.render("home", { title: "Home" });
-})
+});
+
 /* GET home page. */
 router.get('/register', (req, res, next) => {
   res.render('register', { title: 'Registration' });
@@ -15,7 +19,7 @@ router.get('/register', (req, res, next) => {
 
 router.post("/register", (req, res, next) => {
   const { body: { username, email, password } } = req;
-  
+
   // express validator
   req.checkBody('username', 'Username field cannot be empty.').notEmpty();
   req.checkBody('username', 'Username must be between 4-15 characters long.').len(4, 15);
@@ -36,19 +40,19 @@ router.post("/register", (req, res, next) => {
     // const errorMessages = validateErrors.map(validateError => {
     //   return  validateError.msg + "<br/>";
     // }).join("");
-    
+
     // res.render("register", { title: errorMessages });
 
     res.render("register", {
       title: "Registration Error",
       errors: validateErrors
-    })
-    return;    
+    });
+    return;
   }
 
   // Encryption
-  bcrypt.hash(password, saltRounds, function(err, hash) {
-    if(err) throw err;
+  bcrypt.hash(password, saltRounds, function (err, hash) {
+    if (err) throw err;
 
     const queryString = "INSERT INTO users SET ?;";
     const mode = { username, email, password: hash };
@@ -59,11 +63,32 @@ router.post("/register", (req, res, next) => {
         res.render("register", { title: "Registration Error" });
         return;
       }
-      
-      res.render("register", { title: "Registration Complete" })
-      
+
+      db.query("SELECT LAST_INSERT_ID() as user_id", function (error, results, fields) {
+        if (error) throw error;
+        
+        const user_id = results[0];
+        console.log(results[0]);
+
+        req.login(user_id, function (err) {
+          res.redirect("/");
+          return;
+        });
+        // res.render("register", { title: "Registration Complete" })
+      });
     });
   });
-})
+});
+
+passport.serializeUser(function (user_id, done) {
+  console.log("========serializeUser==================");
+
+  done(null, user_id);
+});
+
+passport.deserializeUser(function (user_id, done) {
+  console.log("========deserializeUser==================");
+  done(null, user_id);
+});
 
 module.exports = router;

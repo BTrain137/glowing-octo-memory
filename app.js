@@ -6,7 +6,8 @@ const express = require('express'),
   cookieParser = require('cookie-parser'),
   bodyParser = require('body-parser'),
   expressValidator = require('express-validator'),
-  session = require('express-session'); 
+  session = require('express-session'),
+  passport = require("passport");
 
 var app = express();
 
@@ -28,9 +29,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
+  //
   saveUninitialized: false,
   // cookie: { secure: true }
-}))
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use('/', index);
 app.use('/users', users);
