@@ -5,6 +5,9 @@ const db = require("./../db.js");
 var bcrypt = require('bcrypt');
 const saltRounds = 10;
 
+router.get("/", function(req, res){
+  res.render("home", { title: "Home" });
+})
 /* GET home page. */
 router.get('/register', (req, res, next) => {
   res.render('register', { title: 'Registration' });
