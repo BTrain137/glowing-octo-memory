@@ -53,6 +53,13 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+//isAuthenticated is passed through every view
+//used for handlebars currently
+app.use(function(req, res, next){
+  res.locals.isAuthenticated = req.isAuthenticated();
+  next();
+});
+
 app.use('/', index);
 app.use('/users', users);
 
@@ -63,7 +70,7 @@ passport.use("local", new LocalStrategy(
     const mode = { username: username };
     db.query(queryString, mode, function(err, result, fields){
 
-      if(err) { done(err) };
+      if(err) { return done(err) };
       if (result.length === 0) { return done(null, false); };
 
       const hash = result[0].password.toString();
