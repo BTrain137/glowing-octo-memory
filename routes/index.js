@@ -31,6 +31,15 @@ router.post("/login", passport.authenticate("local", {
   failureRedirect: "/login"
 }));
 
+router.get("/logout", function (req, res) {
+  //logout on express
+  req.logout();
+  //removes the session in the database
+  req.session.destroy();
+
+  res.redirect("/");
+});
+
 /* GET home page. */
 router.get('/register', (req, res, next) => {
   res.render('register', { title: 'Registration' });
