@@ -8,7 +8,8 @@ router.get('/register', (req, res, next) => {
 });
 
 router.post("/register", (req, res, next) => {
-  req.checkBody("username", "Username field cannot be empty.").notEmpty();
+  
+  // express validator
   req.checkBody('username', 'Username field cannot be empty.').notEmpty();
   req.checkBody('username', 'Username must be between 4-15 characters long.').len(4, 15);
   req.checkBody('email', 'The email you entered is invalid, please try again.').isEmail();
@@ -24,12 +25,17 @@ router.post("/register", (req, res, next) => {
   const validateErrors = req.validationErrors();
 
   if (validateErrors) {
-    // console.log("Validate Errors", validateErrors);
-    const errorMessages = validateErrors.map(validateError => {
-      return validateError.msg + " \n";
-    });
-    console.log(errorMessages.toString());
-    res.render("register", { title: errorMessages.toString() });
+    // // console.log("Validate Errors", validateErrors);
+    // const errorMessages = validateErrors.map(validateError => {
+    //   return  validateError.msg + "<br/>";
+    // }).join("");
+    
+    // res.render("register", { title: errorMessages });
+
+    res.render("register", {
+      title: "Registration Error",
+      errors: validateErrors
+    })
     return;    
   }
 
@@ -42,6 +48,7 @@ router.post("/register", (req, res, next) => {
       console.log("Error Code", err.code);
       console.log("Sql Message", err.sqlMessage);
       res.render("register", { title: "Registration Error" });
+      return;
     }
 
     res.render("register", { title: "Registration Complete" })
