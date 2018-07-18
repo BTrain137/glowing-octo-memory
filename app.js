@@ -6,11 +6,14 @@ const express = require('express'),
   cookieParser = require('cookie-parser'),
   bodyParser = require('body-parser'),
   expressValidator = require('express-validator'),
+  db = require("./db.js");
+  
+  //Authentication packages
+const passport = require("passport"),
   session = require('express-session'),
-  passport = require("passport"),
   MySQLStore = require('express-mysql-session')(session),
   LocalStrategy = require('passport-local').Strategy,
-  db = require("./db.js");
+  bcrypt = require("bcrypt");
 
 var app = express();
 
@@ -55,19 +58,23 @@ app.use('/users', users);
 
 passport.use("local", new LocalStrategy(
   function (username, password, done) {
-    console.log(username);
-    console.log(password);
 
-    const queryString = "SELECT password FROM users WHERE ?";
+    const queryString = "SELECT id, password FROM users WHERE ?";
     const mode = { username: username };
-    db.query(queryString, mode, function(err, user, fields){
-      if(err) done(err);
+    db.query(queryString, mode, function(err, result, fields){
 
-      if (user.length === 0) { return done(null, false); };
+      if(err) { done(err) };
+      if (result.length === 0) { return done(null, false); };
 
-      
-      return done(null, "string");
-    })
+      const hash = result[0].password.toString();
+      bcrypt.compare(password, hash, function(err, response){
+        if(response === true){
+          return done(null, {user_id: result[0].id});
+        } else {
+          return done(null, false);
+        }
+      });
+    });
   }
 ));
 
