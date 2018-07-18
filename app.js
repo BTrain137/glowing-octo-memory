@@ -7,7 +7,8 @@ const express = require('express'),
   bodyParser = require('body-parser'),
   expressValidator = require('express-validator'),
   session = require('express-session'),
-  passport = require("passport");
+  passport = require("passport"),
+  MySQLStore = require('express-mysql-session')(session);
 
 var app = express();
 
@@ -26,10 +27,21 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(expressValidator());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+const options = {
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database : process.env.DB_NAME
+};
+
+var sessionStore = new MySQLStore(options);
+
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
-  //
+  store: sessionStore,
   saveUninitialized: false,
   // cookie: { secure: true }
 }));

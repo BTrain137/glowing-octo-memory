@@ -6,11 +6,21 @@ const passport = require("passport");
 var bcrypt = require('bcrypt');
 const saltRounds = 10;
 
+const authenticationMiddleWare = function(req, res, next){
+   console.log(`req.session.passport.user: ${JSON.stringify(req.session.passport)}`);
+   if(req.isAuthenticated()) return next();
+   res.redirect("/register"); 
+}
+
 router.get("/", function (req, res) {
   console.log(req.user);
   console.log(req.isAuthenticated());
   res.render("home", { title: "Home" });
 });
+
+router.get("/profile", function(req, res){
+  res.render("profile", {title: "Profile"});
+})
 
 /* GET home page. */
 router.get('/register', (req, res, next) => {
@@ -66,7 +76,7 @@ router.post("/register", (req, res, next) => {
 
       db.query("SELECT LAST_INSERT_ID() as user_id", function (error, results, fields) {
         if (error) throw error;
-        
+
         const user_id = results[0];
         console.log(results[0]);
 
