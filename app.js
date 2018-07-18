@@ -8,7 +8,9 @@ const express = require('express'),
   expressValidator = require('express-validator'),
   session = require('express-session'),
   passport = require("passport"),
-  MySQLStore = require('express-mysql-session')(session);
+  MySQLStore = require('express-mysql-session')(session),
+  LocalStrategy = require('passport-local').Strategy,
+  db = require("./db.js");
 
 var app = express();
 
@@ -33,7 +35,7 @@ const options = {
   port: process.env.DB_PORT,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  database : process.env.DB_NAME
+  database: process.env.DB_NAME
 };
 
 var sessionStore = new MySQLStore(options);
@@ -50,6 +52,24 @@ app.use(passport.session());
 
 app.use('/', index);
 app.use('/users', users);
+
+passport.use("local", new LocalStrategy(
+  function (username, password, done) {
+    console.log(username);
+    console.log(password);
+
+    const queryString = "SELECT password FROM users WHERE ?";
+    const mode = { username: username };
+    db.query(queryString, mode, function(err, user, fields){
+      if(err) done(err);
+
+      if (user.length === 0) { return done(null, false); };
+
+      
+      return done(null, "string");
+    })
+  }
+));
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

@@ -6,10 +6,10 @@ const passport = require("passport");
 var bcrypt = require('bcrypt');
 const saltRounds = 10;
 
-const authenticationMiddleWare = function(req, res, next) {
-   console.log(`req.session.passport.user: ${JSON.stringify(req.session.passport)}`);
-   if(req.isAuthenticated()) return next();
-   res.redirect("/login"); 
+const authenticationMiddleWare = function (req, res, next) {
+  console.log(`req.session.passport.user: ${JSON.stringify(req.session.passport)}`);
+  if (req.isAuthenticated()) return next();
+  res.redirect("/login");
 }
 
 router.get("/", function (req, res) {
@@ -18,13 +18,18 @@ router.get("/", function (req, res) {
   res.render("home", { title: "Home" });
 });
 
-router.get("/profile", authenticationMiddleWare, function(req, res){
-  res.render("profile", {title: "Profile"});
+router.get("/profile", authenticationMiddleWare, function (req, res) {
+  res.render("profile", { title: "Profile" });
 });
 
-router.get("/login", function(req, res){
+router.get("/login", function (req, res) {
   res.render("login");
-})
+});
+
+router.post("/login", passport.authenticate("local", {
+  successRedirect: "/profile",
+  failureRedirect: "/login"
+}));
 
 /* GET home page. */
 router.get('/register', (req, res, next) => {
