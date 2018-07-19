@@ -21,15 +21,22 @@ passport.use("login", new LocalStrategy(
         const mode = { username: username };
         db.query(queryString, mode, function (err, result, fields) {
 
-            if (err) { return done(err) };
-            if (result.length === 0) { return done(null, false); };
+            if (err) { 
+                return done(err);
+            };
+
+            if (result.length === 0) {
+                return done(null, false, "User not found"); 
+            };
 
             const hash = result[0].password.toString();
             bcrypt.compare(password, hash, function (err, response) {
+                if(err) throw err;
+
                 if (response === true) {
                     return done(null, { user_id: result[0].id });
                 } else {
-                    return done(null, false);
+                    return done(null, false, "Password does not match");
                 }
             });
         });

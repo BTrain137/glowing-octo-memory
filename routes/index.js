@@ -26,10 +26,27 @@ router.get("/login", function (req, res) {
   res.render("login");
 });
 
-router.post("/login", passport.authenticate("login", {
-  successRedirect: "/profile",
-  failureRedirect: "/login"
-}));
+router.post("/login", function (req, res, next) {
+  passport.authenticate('login', function (err, user, info) {
+
+    if (err) { 
+      return next(err); 
+    }
+
+    if (!user) { 
+      return res.render("login", { title: info }); 
+    }
+
+    req.logIn(user, function (err) {
+      if (err) { 
+        return next(err); 
+      }
+
+      return res.redirect("/profile");
+    });
+
+  })(req, res, next);
+});
 
 router.get("/logout", (req, res) => {
   //logout on express
@@ -73,13 +90,13 @@ router.post("/register", (req, res, next) => {
 
   // Encryption
   bcrypt.hash(password, saltRounds, (err, hash) => {
-  console.log("================= 2 ====================");
+    console.log("================= 2 ====================");
     if (err) throw err;
 
     const queryString = "INSERT INTO users SET ?;";
     const mode = { username, email, password: hash };
     db.query(queryString, mode, (err, data, fields) => {
-  console.log("================= 3 ====================");
+      console.log("================= 3 ====================");
 
       if (err) {
         // console.log("Error Code", err.code);
@@ -93,8 +110,9 @@ router.post("/register", (req, res, next) => {
         if (error) throw error;
 
         const user_id = results[0];
-  console.log("================= before req.login ====================");
+        console.log("================= before req.login ====================");
         req.login(user_id, function (err) {
+          if (err) throw err;
           console.log("================= 4 ====================");
           console.log("user_id, req.login: ", user_id);
           res.redirect("/");
@@ -104,9 +122,5 @@ router.post("/register", (req, res, next) => {
     });
   });
 });
-
-// router.post("/register", passport.authenticate("signup"), (req, res)=>{
-
-// })
 
 module.exports = router;
