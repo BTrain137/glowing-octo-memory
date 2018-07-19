@@ -6,19 +6,18 @@ const express = require('express'),
   cookieParser = require('cookie-parser'),
   bodyParser = require('body-parser'),
   expressValidator = require('express-validator'),
-  db = require("./db.js");
+  db = require("./database/connection");
   
   //Authentication packages
 const passport = require("passport"),
   session = require('express-session'),
-  MySQLStore = require('express-mysql-session')(session),
-  LocalStrategy = require('passport-local').Strategy,
-  bcrypt = require("bcrypt");
+  MySQLStore = require('express-mysql-session')(session);
 
-var app = express();
 
-var index = require('./routes/index');
-var users = require('./routes/users');
+const app = express();
+
+const index = require('./routes/index');
+const users = require('./routes/users');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -41,8 +40,9 @@ const options = {
   database: process.env.DB_NAME
 };
 
-var sessionStore = new MySQLStore(options);
+const sessionStore = new MySQLStore(options);
 
+//Middleware for passport 
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
@@ -63,27 +63,7 @@ app.use(function(req, res, next){
 app.use('/', index);
 app.use('/users', users);
 
-passport.use("local", new LocalStrategy(
-  function (username, password, done) {
-
-    const queryString = "SELECT id, password FROM users WHERE ?";
-    const mode = { username: username };
-    db.query(queryString, mode, function(err, result, fields){
-
-      if(err) { return done(err) };
-      if (result.length === 0) { return done(null, false); };
-
-      const hash = result[0].password.toString();
-      bcrypt.compare(password, hash, function(err, response){
-        if(response === true){
-          return done(null, {user_id: result[0].id});
-        } else {
-          return done(null, false);
-        }
-      });
-    });
-  }
-));
+require("./services/passport.js");
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

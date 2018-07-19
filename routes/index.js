@@ -1,20 +1,19 @@
-var express = require('express');
-var router = express.Router();
-const db = require("./../db.js");
-const passport = require("passport");
-
-var bcrypt = require('bcrypt');
-const saltRounds = 10;
+const express = require('express'),
+  router = express.Router(),
+  passport = require("passport"),
+  bcrypt = require('bcrypt'),
+  saltRounds = 10,
+  db = require("./../database/connection.js");
 
 const authenticationMiddleWare = function (req, res, next) {
   console.log(`req.session.passport.user: ${JSON.stringify(req.session.passport)}`);
   if (req.isAuthenticated()) return next();
   res.redirect("/login");
-}
+};
 
 router.get("/", function (req, res) {
-  console.log(req.user);
-  console.log(req.isAuthenticated());
+  // console.log(req.user);
+  // console.log(req.isAuthenticated());
   res.render("home", { title: "Home" });
 });
 
@@ -31,7 +30,7 @@ router.post("/login", passport.authenticate("local", {
   failureRedirect: "/login"
 }));
 
-router.get("/logout", function (req, res) {
+router.get("/logout", (req, res) => {
   //logout on express
   req.logout();
   //removes the session in the database
@@ -64,13 +63,6 @@ router.post("/register", (req, res, next) => {
   const validateErrors = req.validationErrors();
 
   if (validateErrors) {
-    // // console.log("Validate Errors", validateErrors);
-    // const errorMessages = validateErrors.map(validateError => {
-    //   return  validateError.msg + "<br/>";
-    // }).join("");
-
-    // res.render("register", { title: errorMessages });
-
     res.render("register", {
       title: "Registration Error",
       errors: validateErrors
@@ -79,44 +71,32 @@ router.post("/register", (req, res, next) => {
   }
 
   // Encryption
-  bcrypt.hash(password, saltRounds, function (err, hash) {
+  bcrypt.hash(password, saltRounds, (err, hash) => {
     if (err) throw err;
 
     const queryString = "INSERT INTO users SET ?;";
     const mode = { username, email, password: hash };
     db.query(queryString, mode, (err, data, fields) => {
+
       if (err) {
         console.log("Error Code", err.code);
         console.log("Sql Message", err.sqlMessage);
-        res.render("register", { title: "Registration Error" });
+        res.render("register", { title: "Registration Error: Email or Password does not match" });
         return;
       }
 
-      db.query("SELECT LAST_INSERT_ID() as user_id", function (error, results, fields) {
+      console.log(data);
+      db.query("SELECT LAST_INSERT_ID() as user_id", (error, results, fields) => {
         if (error) throw error;
 
         const user_id = results[0];
-        console.log(results[0]);
-
         req.login(user_id, function (err) {
           res.redirect("/");
           return;
         });
-        // res.render("register", { title: "Registration Complete" })
       });
     });
   });
-});
-
-passport.serializeUser(function (user_id, done) {
-  console.log("========serializeUser==================");
-
-  done(null, user_id);
-});
-
-passport.deserializeUser(function (user_id, done) {
-  console.log("========deserializeUser==================");
-  done(null, user_id);
 });
 
 module.exports = router;
