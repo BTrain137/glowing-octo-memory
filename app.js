@@ -1,17 +1,17 @@
 require('dotenv').config();
 const express = require('express'),
-  path = require('path'),
-  favicon = require('serve-favicon'),
-  logger = require('morgan'),
-  cookieParser = require('cookie-parser'),
-  bodyParser = require('body-parser'),
-  expressValidator = require('express-validator'),
-  db = require("./database/connection");
-  
-  //Authentication packages
+    path = require('path'),
+    favicon = require('serve-favicon'),
+    logger = require('morgan'),
+    cookieParser = require('cookie-parser'),
+    bodyParser = require('body-parser'),
+    expressValidator = require('express-validator'),
+    db = require("./database/connection");
+
+//Authentication packages
 const passport = require("passport"),
-  session = require('express-session'),
-  MySQLStore = require('express-mysql-session')(session);
+    session = require('express-session'),
+    MySQLStore = require('express-mysql-session')(session);
 
 
 const app = express();
@@ -33,31 +33,31 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 const options = {
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME
 };
 
 const sessionStore = new MySQLStore(options);
 
 //Middleware for passport 
 app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  store: sessionStore,
-  saveUninitialized: false,
-  // cookie: { secure: true }
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    store: sessionStore,
+    saveUninitialized: false,
+    // cookie: { secure: true }
 }));
 app.use(passport.initialize());
 app.use(passport.session());
 
 //isAuthenticated is passed through every view
 //used for handlebars currently
-app.use(function(req, res, next){
-  res.locals.isAuthenticated = req.isAuthenticated();
-  next();
+app.use(function (req, res, next) {
+    res.locals.isAuthenticated = req.isAuthenticated();
+    next();
 });
 
 app.use('/', index);
@@ -67,20 +67,20 @@ require("./services/passport.js");
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
+    var err = new Error('Not Found');
+    err.status = 404;
+    next(err);
 });
 
 // error handler
 app.use(function (err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+    // render the error page
+    res.status(err.status || 500);
+    res.render('error');
 });
 
 
@@ -93,17 +93,17 @@ const partialsDir = __dirname + '/views/partials';
 const filenames = fs.readdirSync(partialsDir);
 
 filenames.forEach(function (filename) {
-  const matches = /^([^.]+).hbs$/.exec(filename);
-  if (!matches) {
-    return;
-  }
-  const name = matches[1];
-  const template = fs.readFileSync(partialsDir + '/' + filename, 'utf8');
-  hbs.registerPartial(name, template);
+    const matches = /^([^.]+).hbs$/.exec(filename);
+    if (!matches) {
+        return;
+    }
+    const name = matches[1];
+    const template = fs.readFileSync(partialsDir + '/' + filename, 'utf8');
+    hbs.registerPartial(name, template);
 });
 
 hbs.registerHelper('json', function (context) {
-  return JSON.stringify(context, null, 2);
+    return JSON.stringify(context, null, 2);
 });
 
 
