@@ -14,6 +14,7 @@ const authenticationMiddleWare = function (req, res, next) {
 router.get("/", function (req, res) {
   // console.log(req.user);
   // console.log(req.isAuthenticated());
+  console.log("================= 5 ====================");
   res.render("home", { title: "Home" });
 });
 
@@ -25,7 +26,7 @@ router.get("/login", function (req, res) {
   res.render("login");
 });
 
-router.post("/login", passport.authenticate("local", {
+router.post("/login", passport.authenticate("login", {
   successRedirect: "/profile",
   failureRedirect: "/login"
 }));
@@ -39,12 +40,12 @@ router.get("/logout", (req, res) => {
   res.redirect("/");
 });
 
-/* GET home page. */
 router.get('/register', (req, res, next) => {
   res.render('register', { title: 'Registration' });
 });
 
 router.post("/register", (req, res, next) => {
+  console.log("================= 1 ====================");
   const { body: { username, email, password } } = req;
 
   // express validator
@@ -72,25 +73,30 @@ router.post("/register", (req, res, next) => {
 
   // Encryption
   bcrypt.hash(password, saltRounds, (err, hash) => {
+  console.log("================= 2 ====================");
     if (err) throw err;
 
     const queryString = "INSERT INTO users SET ?;";
     const mode = { username, email, password: hash };
     db.query(queryString, mode, (err, data, fields) => {
+  console.log("================= 3 ====================");
 
       if (err) {
-        console.log("Error Code", err.code);
-        console.log("Sql Message", err.sqlMessage);
+        // console.log("Error Code", err.code);
+        // console.log("Sql Message", err.sqlMessage);
         res.render("register", { title: "Registration Error: Email or Password does not match" });
         return;
       }
 
-      console.log(data);
+      // console.log("data",data);
       db.query("SELECT LAST_INSERT_ID() as user_id", (error, results, fields) => {
         if (error) throw error;
 
         const user_id = results[0];
+  console.log("================= before req.login ====================");
         req.login(user_id, function (err) {
+          console.log("================= 4 ====================");
+          console.log("user_id, req.login: ", user_id);
           res.redirect("/");
           return;
         });
@@ -98,5 +104,9 @@ router.post("/register", (req, res, next) => {
     });
   });
 });
+
+// router.post("/register", passport.authenticate("signup"), (req, res)=>{
+
+// })
 
 module.exports = router;
