@@ -12,6 +12,7 @@ passport.serializeUser(function (user_id, done) {
 
 passport.deserializeUser(function (user_id, done) {
     console.log("========deserializeUser==================");
+    console.log("serializeUser user_id", user_id);
     done(null, user_id);
 });
 

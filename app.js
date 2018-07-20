@@ -16,7 +16,7 @@ const passport = require("passport"),
 
 const app = express();
 
-const index = require('./routes/index');
+const passportRoutes = require('./routes/passport.js');
 const users = require('./routes/users');
 
 // view engine setup
@@ -60,8 +60,8 @@ app.use(function (req, res, next) {
     next();
 });
 
-app.use('/', index);
-app.use('/users', users);
+app.use('/', passportRoutes);
+app.use('/', users);
 
 require("./services/passport.js");
 

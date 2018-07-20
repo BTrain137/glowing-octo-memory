@@ -3,26 +3,24 @@ const express = require('express'),
     passport = require("passport");
 
 const authenticationMiddleWare = function (req, res, next) {
-    console.log(`req.session.passport.user: ${JSON.stringify(req.session.passport)}`);
-    if (req.isAuthenticated()) return next();
+    // console.log(`req.session.passport.user: ${JSON.stringify(req.session.passport)}`);
+    if (req.isAuthenticated()) {
+        return next();
+    }
     res.redirect("/login");
 };
 
-router.get("/", function (req, res) {
-    res.render("home", { title: "Home" });
-});
-
-router.get("/profile", authenticationMiddleWare, function (req, res) {
+router.get("/profile", authenticationMiddleWare, (req, res) => {
     res.render("profile", { title: "Profile" });
 });
 
-router.get("/login", function (req, res) {
+router.get("/login", (req, res) => {
     res.render("login");
 });
 
-router.post("/login", function (req, res, next) {
+router.post("/login", (req, res, next) => {
     //Custom callback
-    passport.authenticate('login', function (err, user, info) {
+    passport.authenticate('login', (err, user, info) => {
 
         if (err) {
             return next(err);
@@ -32,7 +30,7 @@ router.post("/login", function (req, res, next) {
             return res.render("login", { title: info });
         }
 
-        req.logIn(user, function (err) {
+        req.logIn(user, (err) => {
             if (err) {
                 return next(err);
             }
@@ -80,7 +78,7 @@ router.post("/register", (req, res, next) => {
         });
     }
 
-    passport.authenticate("register", function (err, user_id, info) {
+    passport.authenticate("register", (err, user_id, info) => {
 
         if (err) {
             if (err === "register") {
@@ -90,7 +88,7 @@ router.post("/register", (req, res, next) => {
             }
         }
 
-        req.login(user_id, function (err) {
+        req.login(user_id, (err) => {
             if (err) {
                 return next(err);
             }
