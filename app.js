@@ -7,14 +7,15 @@ const express = require('express'),
     bodyParser = require('body-parser'),
     expressValidator = require('express-validator'),
     app = express();
-    
+
 //Authentication packages
 const passport = require("passport"),
-    session = require('express-session'),
-    MySQLStore = require('express-mysql-session')(session);
+    session = require('express-session');
 
-const passportRoutes = require('./routes/passport.js');
-const users = require('./routes/users');
+//Authentication routes and database connections
+const passportRoutes = require('./routes/passport.js'),
+    users = require('./routes/users'),
+    sessionStore = require("./database/MySQLSessions.js");
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -28,16 +29,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(expressValidator());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
-const options = {
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME
-};
-
-const sessionStore = new MySQLStore(options);
 
 //Middleware for passport 
 app.use(session({
