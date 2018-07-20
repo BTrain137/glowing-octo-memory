@@ -5,14 +5,13 @@ const express = require('express'),
     logger = require('morgan'),
     cookieParser = require('cookie-parser'),
     bodyParser = require('body-parser'),
-    expressValidator = require('express-validator');
+    expressValidator = require('express-validator'),
+    app = express();
     
 //Authentication packages
 const passport = require("passport"),
     session = require('express-session'),
     MySQLStore = require('express-mysql-session')(session);
-
-const app = express();
 
 const passportRoutes = require('./routes/passport.js');
 const users = require('./routes/users');

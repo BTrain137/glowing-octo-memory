@@ -5,15 +5,19 @@ const LocalStrategy = require("passport-local").Strategy,
     db = require("../database/connection.js");
 
 passport.serializeUser(function (user_id, done) {
-    console.log("========serializeUser==================");
-    console.log("serializeUser user_id", user_id);
     done(null, user_id);
 });
 
 passport.deserializeUser(function (user_id, done) {
-    console.log("========deserializeUser==================");
-    console.log("serializeUser user_id", user_id);
-    done(null, user_id);
+    const userID = user_id.user_id || user_id[0].user_id; 
+    const queryString = "SELECT id, email, username FROM users WHERE ?;";
+    const mode = { id: userID };
+    db.query(queryString, mode, function(err, user, field){
+        if(err){
+            return done(err);
+        }
+        return done(null, user[0]);
+    });
 });
 
 passport.use("login", new LocalStrategy(
