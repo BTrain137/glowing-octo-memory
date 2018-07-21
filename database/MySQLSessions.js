@@ -1,3 +1,10 @@
+/**
+ * Users session's cookies are converted into database storage
+ * When users are logged in session storage is created for the user
+ * Logout method removes the specific session from the table
+ * Table only contains identifier session
+ */
+
 const session = require('express-session'),
     MySQLStore = require('express-mysql-session')(session);
 

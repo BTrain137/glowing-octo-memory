@@ -1,13 +1,35 @@
-const LocalStrategy = require("passport-local").Strategy,
+/**
+ * Passport middleware for login and register
+ * MySQL connection is made to sync user's session in session's table
+ * Client is given a cookie to match up with server's client session
+ * Serialize client's cookie when stored in the browser
+ * Deserialize User when called are being made from the client the server
+ */
+
+const LocalStrategy = require("passport-local").Strategy
     bcrypt = require("bcrypt"),
     passport = require("passport"),
     saltRounds = 10,
     db = require("../database/connection.js");
 
+/**
+ * Serialize user fires after a cookie/session has been created 
+ * in the session's table.
+ * The cookie get serialized and stored in the browser
+ * @param {object} user_id
+ */
 passport.serializeUser(function (user_id, done) {
     done(null, user_id);
 });
 
+/**
+ * Deserialize user fires when the browser makes calls to routes
+ * Req.user is then created from this step
+ * A database call is made to grab all the user's data
+ * @param {object} user_id
+ * TODO possibly the user id is enough and each route will handle it's 
+ * own database call to save latency
+ */
 passport.deserializeUser(function (user_id, done) {
     const userID = user_id.user_id || user_id[0].user_id; 
     const queryString = "SELECT id, email, username FROM users WHERE ?;";
@@ -20,15 +42,22 @@ passport.deserializeUser(function (user_id, done) {
     });
 });
 
+/**
+ * Local Strategy is created to pass bcrypt compare
+ * Browser must submit form field name's as username and passport
+ * Login parameters is checked against the database for matched
+ * done(err, user, info) in routes/passport.js
+ * @param { string } username
+ * @param { string } password
+ */
 passport.use("login", new LocalStrategy(
     (username, password, done) => {
 
         const queryString = "SELECT id, password FROM users WHERE ?";
-        const mode = { username: username };
-        db.query(queryString, mode, function (err, result, fields) {
+        db.query(queryString, { username }, function (err, result, fields) {
 
             if (err) {
-                return done("hello world err stuff")
+                return done(err)
             };
 
             if (result.length === 0) {
@@ -49,6 +78,11 @@ passport.use("login", new LocalStrategy(
     }
 ));
 
+/**
+ * Register new users to sight. 
+ * Request body passed back to receive other information 
+ * User is created with all the profile's 
+ */
 passport.use("register", new LocalStrategy({
     passReqToCallback: true,
 }, (req, username, password, done) => {

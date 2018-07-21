@@ -1,7 +1,16 @@
+/**
+ * Passport Routes with custom call back to handle errors
+ */
 const express = require('express'),
     router = express.Router(),
     passport = require("passport");
 
+/**
+ * IsAuthenticated only exist after deserialize passes back a user object
+ * @param {object} req Request by the user
+ * @param {object} res Response sent to the user
+ * @param {Function} next When function is completed the next middleware or parents can occur
+ */
 const authenticationMiddleWare = function (req, res, next) {
     // console.log(`req.session.passport.user: ${JSON.stringify(req.session.passport)}`);
     if (req.isAuthenticated()) {
@@ -23,6 +32,11 @@ router.get("/login", (req, res) => {
     res.render("login");
 });
 
+/**
+ * Custom call back function to handle mysql errors
+ * And handle not found user or password did not match
+ * Request login saves the user into a login state
+ */
 router.post("/login", (req, res, next) => {
     //Custom callback
     passport.authenticate('login', (err, user, info) => {
@@ -46,6 +60,10 @@ router.post("/login", (req, res, next) => {
     })(req, res, next);
 });
 
+/**
+ * Logout event to logout express 
+ * And removes session storage in session table
+ */
 router.get("/logout", (req, res) => {
     //logout on express
     req.logout();
@@ -59,6 +77,13 @@ router.get('/register', (req, res, next) => {
     res.render('register', { title: 'Registration' });
 });
 
+/** 
+ * Register creates a new user
+ * Express-Validator checks for input field and sends the users errors
+ * Custom passport call back renders different pages 
+ * Errors are handled from passport or MySQL duplicate user or email created
+ * TODO handle duplicate key from username or email
+*/
 router.post("/register", (req, res, next) => {
     const { body: { password } } = req;
     // express validator
@@ -81,6 +106,7 @@ router.post("/register", (req, res, next) => {
         });
     }
 
+    //Custom call back
     passport.authenticate("register", (err, user_id, info) => {
 
         if (err) {

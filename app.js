@@ -30,6 +30,12 @@ app.use(expressValidator());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+/**
+ * Session cookies are created on the client side
+ * Resave cookies will be saved on the server
+ * Store session table from the server
+ * saveUninitialized creates a cookie on the user on page load
+ */
 //Middleware for passport 
 app.use(session({
     secret: process.env.SESSION_SECRET,
@@ -60,6 +66,10 @@ app.use(function (req, res, next) {
     next(err);
 });
 
+/**
+ * All next(err) arrive here to be handled by express
+ * Stack errors and messages are rendered in the Errors.hbs
+ */
 // error handler
 app.use(function (err, req, res, next) {
     // set locals, only providing error in development
