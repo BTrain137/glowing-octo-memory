@@ -18,6 +18,7 @@ const passport = require("passport"),
 const passportRoutes = require('./routes/passport.js'),
     users = require('./routes/users'),
     MongoStore = require('connect-mongo')(session);
+require("./models/Users.js");
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -34,7 +35,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Configure Mongo Database
 mongoose.promise = global.promise;
-mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/passport-tutorial");
+mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/passport-tutorial", { useNewUrlParser: true });
 if(isproduction) mongoose.set('debug', true);
 
 /**

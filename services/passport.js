@@ -7,9 +7,10 @@
  */
 
 const LocalStrategy = require("passport-local").Strategy
-    bcrypt = require("bcrypt"),
+bcrypt = require("bcrypt"),
     passport = require("passport"),
     saltRounds = 10,
+    mongoose = require("mongoose"),
     Users = mongoose.model("Users");
 
 /**
@@ -31,7 +32,8 @@ passport.serializeUser(function (user_id, done) {
  * own database call to save latency
  */
 passport.deserializeUser(function (user_id, done) {
-   done(null, user_id);
+
+    done(null, user_id);
 });
 
 /**
@@ -45,28 +47,30 @@ passport.deserializeUser(function (user_id, done) {
 passport.use("login", new LocalStrategy(
     (username, password, done) => {
 
-        const queryString = "SELECT id, password FROM users WHERE ?";
-        db.query(queryString, { username }, function (err, result, fields) {
+        // check in mongo if a user with username exists or not
+        Users.findOne({ 'username': username },
+            function (err, user) {
+                // In case of any error, return using the done method
+                if (err) {
+                    return done(err)
+                };
 
-            if (err) {
-                return done(err)
-            };
+                // Username does not exist, log error & redirect back
+                if (!user) {
+                    return done(null, false, "User not found");
+                };
 
-            if (result.length === 0) {
-                return done(null, false, "User not found");
-            };
+                const hash = user.password.toString();
+                bcrypt.compare(password, hash, function (err, response) {
+                    if (err) throw err;
 
-            const hash = result[0].password.toString();
-            bcrypt.compare(password, hash, function (err, response) {
-                if (err) throw err;
-
-                if (response === true) {
-                    return done(null, { user_id: result[0].id });
-                } else {
-                    return done(null, false, "Password does not match");
-                }
+                    if (response === true) {
+                        return done(null, user);
+                    } else {
+                        return done(null, false, "Password does not match");
+                    }
+                });
             });
-        });
     }
 ));
 
@@ -78,33 +82,44 @@ passport.use("login", new LocalStrategy(
 passport.use("register", new LocalStrategy({
     passReqToCallback: true,
 }, (req, username, password, done) => {
-    
-    const { email } = req.body;
 
-    // // Encryption
-    bcrypt.hash(password, saltRounds, (err, hash) => {
-        if (err) {
-            return next(err);
-        };
+    const { body: { email } } = req;
 
-        const queryString = "INSERT INTO users SET ?;";
-        const mode = { username, email, password: hash };
-        db.query(queryString, mode, (err, data, fields) => {
-
+    findOrCreateUser = function () {
+        // // Encryption
+        bcrypt.hash(password, saltRounds, (err, hash) => {
             if (err) {
-                // TODO handle duplicate username/email error
-                console.log("Error Code", err.code);
-                console.log("Sql Message", err.sqlMessage);
-                return done("register", null, { title: err.sqlMessage });
+                return next(err);
             };
 
-            db.query("SELECT LAST_INSERT_ID() as user_id", (error, user_id, fields) => {
-                if (error) { 
-                    return done(error);
-                };
+            // check in mongo if a user with username exists or not
+            Users.findOne({ 'username': username },
+                function (err, user) {
 
-                return done(null, user_id);
-            });
+                    if (err) {
+                        return done(err);
+                    };
+
+                    if (user) {
+                        return done(null, false, "'User Already Exists");
+                    }
+
+                    const newUser = new Users();
+                    newUser.username = username;
+                    newUser.password = hash;
+                    newUser.email = email;
+
+                    newUser.save(function (err) {
+                        if (err) {
+                            return done(err)
+                        }
+
+                        return done(null, newUser);
+                    });
+               });
         });
-    });
+    };
+    // Delay the execution of findOrCreateUser and execute 
+    // the method in the next tick of the event loop
+    process.nextTick(findOrCreateUser);
 }));

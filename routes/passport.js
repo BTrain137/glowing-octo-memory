@@ -20,7 +20,7 @@ const authenticationMiddleWare = function (req, res, next) {
 };
 
 router.get("/profile", authenticationMiddleWare, (req, res) => {
-    console.log("User info: ", req.user.email);
+    console.log("User info: ", req.user);
     res.render("profile", {
         title: "Profile",
         email: req.user.email,
