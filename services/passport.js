@@ -10,7 +10,7 @@ const LocalStrategy = require("passport-local").Strategy
     bcrypt = require("bcrypt"),
     passport = require("passport"),
     saltRounds = 10,
-    db = require("../database/connection.js");
+    Users = mongoose.model("Users");
 
 /**
  * Serialize user fires after a cookie/session has been created 
@@ -31,15 +31,7 @@ passport.serializeUser(function (user_id, done) {
  * own database call to save latency
  */
 passport.deserializeUser(function (user_id, done) {
-    const userID = user_id.user_id || user_id[0].user_id; 
-    const queryString = "SELECT id, email, username FROM users WHERE ?;";
-    const mode = { id: userID };
-    db.query(queryString, mode, function(err, user, field){
-        if(err){
-            return done(err);
-        }
-        return done(null, user[0]);
-    });
+   done(null, user_id);
 });
 
 /**

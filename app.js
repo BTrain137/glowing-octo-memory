@@ -6,7 +6,9 @@ const express = require('express'),
     cookieParser = require('cookie-parser'),
     bodyParser = require('body-parser'),
     expressValidator = require('express-validator'),
-    app = express();
+    mongoose = require("mongoose"),
+    app = express(),
+    isproduction = process.env.NODE_ENV === "production";
 
 //Authentication packages
 const passport = require("passport"),
@@ -15,7 +17,7 @@ const passport = require("passport"),
 //Authentication routes and database connections
 const passportRoutes = require('./routes/passport.js'),
     users = require('./routes/users'),
-    sessionStore = require("./database/MySQLSessions.js");
+    MongoStore = require('connect-mongo')(session);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -30,19 +32,28 @@ app.use(expressValidator());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Configure Mongo Database
+mongoose.promise = global.promise;
+mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/passport-tutorial");
+if(isproduction) mongoose.set('debug', true);
+
 /**
  * Session cookies are created on the client side
  * Resave cookies will be saved on the server
  * Store session table from the server
  * saveUninitialized creates a cookie on the user on page load
+ * TouchAfter will only update session one time in 24 hour period.
  */
 //Middleware for passport 
 app.use(session({
     secret: process.env.SESSION_SECRET,
-    resave: false,
-    store: sessionStore,
-    saveUninitialized: false,
-    // cookie: { secure: true }
+    saveUninitialized: false, // don't create session until something stored
+    resave: false, //don't save session if unmodified
+    store: new MongoStore({ 
+        mongooseConnection: mongoose.connection,
+        ttl: 24 * 60 * 60, //24 hours cookie storage
+        touchAfter: 24 * 3600 // time period in seconds
+    })
 }));
 app.use(passport.initialize());
 app.use(passport.session());
