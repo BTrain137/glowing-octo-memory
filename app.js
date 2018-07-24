@@ -35,7 +35,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Configure Mongo Database
 mongoose.promise = global.promise;
-mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/passport-tutorial", { useNewUrlParser: true });
+mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/passport", { useNewUrlParser: true });
 if(!isproduction) mongoose.set('debug', true);
 
 /**
