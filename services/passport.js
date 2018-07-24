@@ -27,13 +27,20 @@ passport.serializeUser(function (user_id, done) {
  * Deserialize user fires when the browser makes calls to routes
  * Req.user is then created from this step
  * A database call is made to grab all the user's data
- * @param {object} user_id
  * TODO possibly the user id is enough and each route will handle it's 
  * own database call to save latency
+ * Currently Deserialize user must call back to the database because
+ * The user is only given their ID to be serialize 
+ * @param {object} user_id given to server by req.login() from user in their cookie
  */
 passport.deserializeUser(function (user_id, done) {
-
-    done(null, user_id);
+    
+    Users.findOne({ "_id": user_id }, function(err, user){
+        if(err){
+            return done(err);
+        };
+        done(null, user);
+    });
 });
 
 /**
@@ -65,7 +72,7 @@ passport.use("login", new LocalStrategy(
                     if (err) throw err;
 
                     if (response === true) {
-                        return done(null, user);
+                        return done(null, user._id);
                     } else {
                         return done(null, false, "Password does not match");
                     }
@@ -113,8 +120,7 @@ passport.use("register", new LocalStrategy({
                         if (err) {
                             return done(err)
                         }
-
-                        return done(null, newUser);
+                        return done(null, newUser._id);
                     });
                });
         });
