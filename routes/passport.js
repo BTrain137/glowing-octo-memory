@@ -20,11 +20,10 @@ const authenticationMiddleWare = function (req, res, next) {
 };
 
 router.get("/profile", authenticationMiddleWare, (req, res) => {
-    console.log("User info: ", req.user);
     res.render("profile", {
         title: "Profile",
         email: req.user.email,
-        username: req.user.username 
+        username: req.user.username
     });
 });
 
@@ -38,22 +37,37 @@ router.get("/login", (req, res) => {
  * Request login saves the user into a login state
  */
 router.post("/login", (req, res, next) => {
+
+    req.checkBody('username', 'Username field cannot be empty.').notEmpty();
+    req.checkBody('password', 'Password must be between 8-100 characters long.').len(8, 100);
+
+    let validateErrors = req.validationErrors();
+
+    if (validateErrors) {
+        return res.render("login", {
+            title: "Login Error",
+            errors: validateErrors
+        });
+    }
+
     //Custom callback
-    passport.authenticate('login', (err, user, info) => {
+    passport.authenticate('login', (err, user_id, info) => {
 
         if (err) {
             return next(err);
         }
 
-        if (!user) {
-            return res.render("login", { title: info });
+        if (!user_id) {
+            return res.render("login", { 
+                title: "Login Error",
+                errors: info
+            });
         }
 
-        req.logIn(user, (err) => {
+        req.logIn(user_id, (err) => {
             if (err) {
                 return next(err);
             }
-
             return res.redirect("/profile");
         });
 
@@ -68,7 +82,7 @@ router.get("/logout", (req, res) => {
     //logout on express
     req.logout();
     //removes the session in the database
-    req.session.destroy(err => console.log("cannot access session", err));
+    // req.session.destroy(err => console.log("cannot access session", err));
 
     res.redirect("/");
 });
@@ -86,6 +100,7 @@ router.get('/register', (req, res, next) => {
 */
 router.post("/register", (req, res, next) => {
     const { body: { password } } = req;
+
     // express validator
     req.checkBody('username', 'Username field cannot be empty.').notEmpty();
     req.checkBody('username', 'Username must be between 4-15 characters long.').len(4, 15);
@@ -97,7 +112,7 @@ router.post("/register", (req, res, next) => {
     req.checkBody('passwordMatch', 'Password must be between 8-100 characters long.').len(8, 100);
     req.checkBody('passwordMatch', 'Passwords do not match, please try again.').equals(password);
 
-    const validateErrors = req.validationErrors();
+    let validateErrors = req.validationErrors();
 
     if (validateErrors) {
         return res.render("register", {
