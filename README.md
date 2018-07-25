@@ -28,6 +28,7 @@ npm start
 - Handle Errors gracefully
 - ~~Move MySQL to Non Relational database.~~ 
 - Change out views from handlebars to static HTML
+- Clean up bcrypt hash and sync function
 
 <hr>
 
