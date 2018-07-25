@@ -1,24 +1,23 @@
-require('dotenv').config();
-const express = require('express'),
-    path = require('path'),
-    favicon = require('serve-favicon'),
-    logger = require('morgan'),
-    cookieParser = require('cookie-parser'),
-    bodyParser = require('body-parser'),
-    expressValidator = require('express-validator'),
-    mongoose = require("mongoose"),
-    app = express(),
-    isproduction = process.env.NODE_ENV === "production";
+const express = require('express')
+    , dot = require('dotenv').config()
+    , path = require('path')
+    , favicon = require('serve-favicon')
+    , logger = require('morgan')
+    , cookieParser = require('cookie-parser')
+    , bodyParser = require('body-parser')
+    , expressValidator = require('express-validator')
+    , mongoose = require("mongoose")
+    , app = express();
 
 //Authentication packages
-const passport = require("passport"),
-    session = require('express-session');
+const passport = require("passport")
+    , session = require('express-session');
 
 //Authentication routes and database connections
-const passportRoutes = require('./routes/passport.js'),
-    users = require('./routes/users'),
-    MongoStore = require('connect-mongo')(session);
-require("./models/Users.js");
+const passportRoutes = require('./routes/passport.js')
+    , users = require('./routes/users')
+    , MongoStore = require('connect-mongo')(session);
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -34,9 +33,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Configure Mongo Database
-mongoose.promise = global.promise;
-mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/passport", { useNewUrlParser: true });
-if(!isproduction) mongoose.set('debug', true);
+require("./models/Users.js");
+require("./database/mongodb.js");
 
 /**
  * Session cookies are created on the client side
@@ -50,7 +48,7 @@ app.use(session({
     secret: process.env.SESSION_SECRET,
     saveUninitialized: false, // don't create session until something stored
     resave: false, //don't save session if unmodified
-    store: new MongoStore({ 
+    store: new MongoStore({
         mongooseConnection: mongoose.connection,
         ttl: 24 * 60 * 60, //24 hours cookie storage
         touchAfter: 24 * 3600 // time period in seconds
@@ -69,6 +67,7 @@ app.use(function (req, res, next) {
 app.use('/', passportRoutes);
 app.use('/', users);
 
+// Passport local strategy
 require("./services/passport.js");
 
 // catch 404 and forward to error handler
