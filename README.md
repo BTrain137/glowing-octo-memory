@@ -1,18 +1,17 @@
-# Passport-Local-Custom-MySQL
+# Passport-Node-Mongo!-Session-Local
 
 ## Purpose 
 
 This project was set to create a persistent login even if the user closes the browser or reboots
-Session's are stored on the server side on a MySQL table created from passport.
+Session's are stored on the server side on a Mongo! collections created from passport.
 
 <hr>
 
 ## Usage
 
-##### MySQL setup first
+##### Mongodb setup first
 ```
-Run MySQL serve
-Seed the schema.sql
+Run Mongod
 ```
 
 #### Terminal commands
@@ -27,11 +26,11 @@ npm start
 ## Features
 
 - Handle Errors gracefully
-- Move MySQL to Non Relational database. 
+- ~~Move MySQL to Non Relational database.~~ 
 - Change out views from handlebars to static HTML
 
 <hr>
 
 ## License
 
-Furry Guide is an open-source framework running under the [MIT License](https://opensource.org/licenses/MIT).
+glowing-octo-memory is an open-source framework running under the [MIT License](https://opensource.org/licenses/MIT).
