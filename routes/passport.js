@@ -58,7 +58,7 @@ router.post("/login", (req, res, next) => {
         }
 
         if (!user_id) {
-            return res.render("login", { 
+            return res.render("login", {
                 title: "Login Error",
                 errors: info
             });
@@ -80,10 +80,10 @@ router.post("/login", (req, res, next) => {
  */
 router.get("/logout", (req, res) => {
     //logout on express
+    res.clearCookie('connect.sid') // clean up!
     req.logout();
     //removes the session in the database
     // req.session.destroy(err => console.log("cannot access session", err));
-
     res.redirect("/");
 });
 
@@ -141,5 +141,13 @@ router.post("/register", (req, res, next) => {
 
     })(req, res, next);
 });
+
+router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+router.get('/auth/google/callback',
+    passport.authenticate('google', {
+        successRedirect: '/profile',
+        failureRedirect: '/'
+    }));
 
 module.exports = router;
