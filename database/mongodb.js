@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-    , isproduction = process.env.NODE_ENV === "production"
+    , isproduction = process.env.NODE_ENV === "production";
 
 //NoSQL mongo database
 mongoose.promise = global.promise;
