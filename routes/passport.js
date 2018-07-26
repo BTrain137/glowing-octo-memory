@@ -142,12 +142,30 @@ router.post("/register", (req, res, next) => {
     })(req, res, next);
 });
 
+//Google Oauth
 router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 router.get('/auth/google/callback',
     passport.authenticate('google', {
         successRedirect: '/profile',
         failureRedirect: '/'
-    }));
+    })
+);
+
+// Shopify Oauth
+router.get('/auth/shopify',
+    passport.authenticate('shopify', {
+        scope: [process.env.SHOPIFY_SCOPES],
+        shop: process.env.SHOPIFY_SHOP_SLUG
+    })
+);
+
+router.get('/auth/shopify/callback',
+    passport.authenticate('shopify', {
+        failureRedirect: '/login',
+        failureRedirect: '/'
+    })
+);
+
 
 module.exports = router;

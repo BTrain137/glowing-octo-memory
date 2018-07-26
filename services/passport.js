@@ -13,6 +13,7 @@ const passport = require("passport")
 //require in all Strategies 
 require("./LocalStrategy.js");
 require("./GoogleStrategy.js");
+require("./ShopifyStrategy.js");
 
 /**
  * Serialize user fires after a cookie/session has been created 
