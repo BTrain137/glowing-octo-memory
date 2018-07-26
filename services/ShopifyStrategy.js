@@ -16,12 +16,13 @@ const logMe = function (accessToken, refreshToken, profile) {
 passport.use("shopify", new ShopifyStrategy({
     clientID: process.env.SHOPIFY_CLIENT_ID,
     clientSecret: process.env.SHOPIFY_CLIENT_SECRET,
-    callbackURL: "https://2000daa5.ngrok.io/auth/shopify/callback",
+    callbackURL: process.env.SHOPIFY_CALLBACK_URL,
     shop: process.env.SHOPIFY_SHOP_SLUG
 },
     function (accessToken, refreshToken, profile, done) {
 
         logMe(accessToken, refreshToken, profile);
+
         Users.findOne({ shopifyId: profile.id }, function (err, user) {
 
             if (err)

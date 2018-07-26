@@ -153,14 +153,14 @@ router.get('/auth/google/callback',
 );
 
 // Shopify Oauth
-router.get('/auth/shopify',
+router.get('/shopify',
     passport.authenticate('shopify', {
         scope: [process.env.SHOPIFY_SCOPES],
         shop: process.env.SHOPIFY_SHOP_SLUG
     })
 );
 
-router.get('/auth/shopify/callback',
+router.get('/shopify/callback',
     passport.authenticate('shopify', {
         failureRedirect: '/login',
         failureRedirect: '/'
